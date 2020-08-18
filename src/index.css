@@ -84,6 +84,13 @@ section {
   color: #223344;
 }
 
+.error {
+  text-align: center;
+  color: red;
+  font-size: 20px;
+  font-weight: 300;
+}
+
 .popup {
   position: fixed;
   top: 0;

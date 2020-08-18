@@ -12,6 +12,7 @@ function App() {
     page_num: 1,
     next_call: false,
     prev_call: false,
+    err_message: "",
   });
   const api = "http://www.omdbapi.com/?apikey=7e808ec3";
   useEffect(() => {
@@ -26,15 +27,25 @@ function App() {
       axios(api + "&s=" + state.searchQuery + "&page=" + state.page_num).then(
         (res) => {
           console.log(res);
-          const results = res.data.Search;
-          setState((prevState) => {
-            return {
-              ...prevState,
-              results: results,
-              prev_call: false,
-              next_call: false,
-            };
-          });
+          if (res.data.Response === "True") {
+            const results = res.data.Search;
+            setState((prevState) => {
+              return {
+                ...prevState,
+                results: results,
+                prev_call: false,
+                next_call: false,
+                err_message: "",
+              };
+            });
+          } else {
+            setState((prevState) => {
+              return {
+                ...prevState,
+                err_message: res.data.Error,
+              };
+            });
+          }
         }
       );
     }
@@ -102,14 +113,20 @@ function App() {
       </header>
       <main>
         <SearchBar inputHandler={inputHandler} search={search} />
-        <Results results={state.results} openPopup={openPopup} />
+        {state.err_message === "" ? (
+          <Results results={state.results} openPopup={openPopup} />
+        ) : (
+          <div className="error">{state.err_message}</div>
+        )}
         <br />
-        {state.results.length === 0 || state.page_num === 1 ? null : (
+        {state.results.length === 0 ||
+        state.page_num === 1 ||
+        state.err_message !== "" ? null : (
           <button className="back" type="button" onClick={prevPageHandler}>
             Previous
           </button>
         )}
-        {state.results.length < 10 ? null : (
+        {state.results.length < 10 || state.err_message !== "" ? null : (
           <button className="next" type="button" onClick={nextPageHandler}>
             Next
           </button>
